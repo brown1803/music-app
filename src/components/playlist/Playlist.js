@@ -1,0 +1,168 @@
+/* eslint-disable react/destructuring-assignment */
+import React, { Component } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  FlatList,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+  BackHandler
+} from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+
+export default class Playlist extends Component {
+  componentDidMount() {
+    BackHandler.addEventListener('hardwareBackPress', () => {
+      this.props.onBackPressed();
+      return true;
+    });
+  }
+
+  render() {
+    const { playlist, onTrackPressed, playingTrack, onPlayPressed } = this.props;
+
+    return (
+      <View>
+        <ScrollView contentContainerStyle={styles.container}>
+          <LinearGradient colors={['#2b3535', '#121212']} style={styles.header} />
+
+          <View style={styles.playlistDetails}>
+            <Image style={styles.playlistArt} source={{ uri: playlist.playlistArtUrl }} />
+            <Text style={styles.playlistTitle}>{playlist.name}</Text>
+            <Text style={styles.playlistSubtitle}>{`${playlist.tracks.length} SONGS`}</Text>
+            <TouchableOpacity style={styles.playlistButton} onPress={onPlayPressed}>
+              <Text style={styles.playlistButtonText}>SHUFFLE PLAY</Text>
+            </TouchableOpacity>
+          </View>
+
+          <FlatList
+            style={styles.list}
+            data={playlist.tracks}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => {
+                  onTrackPressed(item);
+                }}
+              >
+                <View style={{ flexDirection: 'row'}}>
+                  <View style={styles.playlistItem}>
+                    <Text
+                      style={[
+                        styles.playlistItemTitle,
+                        item === playingTrack ? styles.selectedTrack : {}
+                      ]}
+                    >
+                      {item.title}
+                    </Text>
+                    <Text style={styles.playlistItemMeta}>{`${item.artist}`}</Text>
+                    {/* <Text style={styles.playlistItemMeta}>{`${item.artist} • ${item.album}`}</Text> */}
+                  </View>
+
+                  {/* <View
+                    style={{
+                      flex: 0.15,
+                      justifyContent: 'center',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <TouchableOpacity
+                      onPress={() => {
+                        this.props.onPressRemove(item);
+                      }}
+                    >
+                      <Image
+                        style={{ width: 22, height: 22 }}
+                        source={require('../../images/ic-remove.png')}
+                      />
+                    </TouchableOpacity>
+                  </View> */}
+                </View>
+              </TouchableOpacity>
+            )}
+            keyExtractor={(item, index) => index.toString()}
+          />
+        </ScrollView>
+      </View>
+    );
+  }
+}
+
+const { height, width } = Dimensions.get('window');
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  header: {
+    width: '100%',
+    height: (5 * height) / 100 + 400 // 400: height of playlistDetails
+  },
+  list: {
+    width: '100%',
+    backgroundColor: '#121212'
+  },
+  playlistDetails: {
+    width: '100%',
+    height: 400,
+    position: 'absolute',
+    top: 50,
+    display: 'flex',
+    alignItems: 'center'
+  },
+  playlistArt: {
+    width: 180,
+    height: 180
+  },
+  playlistTitle: {
+    // fontFamily: 'gibson-bold',
+    color: '#fff',
+    fontSize: 25,
+    fontWeight: 'bold',
+    marginTop: 25
+  },
+  playlistSubtitle: {
+    // fontFamily: 'gibson-regular',
+    color: '#b9bdbe',
+    fontSize: 12,
+    marginTop: 15
+  },
+  playlistButton: {
+    backgroundColor: '#2ab759',
+    width: 230,
+    height: 50,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 100,
+    marginTop: 30
+  },
+  playlistButtonText: {
+    // fontFamily: 'gibson-bold',
+    fontSize: 12,
+    color: '#fff',
+    letterSpacing: 2
+  },
+  playlistItem: {
+    marginLeft: 25,
+    marginVertical: 12,
+  },
+  playlistItemTitle: {
+    // fontFamily: 'gibson-bold',
+    fontSize: 18,
+    color: '#fff'
+  },
+  playlistItemMeta: {
+    // fontFamily: 'gibson-regular',
+    color: '#b9bdbe',
+    fontSize: 15
+  },
+  selectedTrack: {
+    fontSize: 18,
+    color: 'rgb(28, 181, 82)',
+    fontWeight: 'bold'
+  }
+});
